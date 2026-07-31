@@ -1,0 +1,120 @@
+Code:
+using System;
+
+namespace lab2
+{
+    internal class Program
+    {
+        // Interface
+        interface IPayroll
+        {
+            double CalculateSalary();
+        }
+
+        // Base Class
+        class employee
+        {
+            public int empid;
+            public string empname;
+            public double bsal;
+
+            public employee()
+            {
+                Console.WriteLine("EMPLOYEE PAYROLL SYSTEM");
+            }
+
+            public void getdata()
+            {
+                Console.WriteLine("Enter Employee ID:");
+                empid = Convert.ToInt32(Console.ReadLine());
+
+                Console.WriteLine("Enter Employee Name:");
+                empname = Console.ReadLine();
+
+                Console.WriteLine("Enter Basic Salary:");
+                bsal = Convert.ToDouble(Console.ReadLine());
+            }
+
+            public virtual void display()
+            {
+                Console.WriteLine("\nEmployee ID: " + empid);
+                Console.WriteLine("Employee Name: " + empname);
+                Console.WriteLine("Basic Salary: " + bsal);
+            }
+        }
+
+        // Full-Time Employee
+        class fulltime : employee, IPayroll
+        {
+            public double CalculateSalary()
+            {
+                double ma = 0.1 * bsal;
+                double hra = 0.2 * bsal;
+                double da = 0.1 * bsal;
+                double pf = 0.05 * bsal;
+
+                double salary = (bsal + hra + ma + da) - pf;
+
+                return salary;
+            }
+
+            public override void display()
+
+            {
+                base.display();
+
+                Console.WriteLine("Employee Type: Full Time");
+                Console.WriteLine("Full Time Employee Salary: "
+                    + CalculateSalary());
+            }
+        }
+
+        // Part-Time Employee
+        class parttime : employee, IPayroll
+        {
+            public int hours;
+            public double rate;
+
+            public double CalculateSalary()
+            {
+                return hours * rate;
+            }
+
+            public override void display()
+            {
+                base.display();
+
+                Console.WriteLine("Employee Type: Part Time");
+                Console.WriteLine("Part Time Employee Salary: "
+                    + CalculateSalary());
+            }
+        }
+
+        // Main Method
+        static void Main(string[] args)
+        {
+            Console.WriteLine("1. Full Time Employee");
+            Console.WriteLine("2. Part Time Employee");
+
+            Console.Write("Enter Choice: ");
+            int choice = Convert.ToInt32(Console.ReadLine());
+
+            employee emp;
+
+            if (choice == 1)
+            {
+                emp = new fulltime();
+            }
+            else
+            {
+                emp = new parttime();
+            }
+
+            // Polymorphism
+            emp.getdata();
+            emp.display();
+
+            Console.ReadKey();
+        }
+    }
+}
