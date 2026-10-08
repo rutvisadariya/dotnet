@@ -1,0 +1,181 @@
+calendar.aspx:-
+
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="calendar.aspx.cs"
+Inherits="prac_5.calendar" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Calendar</title>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+            <asp:Calendar ID="Calendar1" runat="server" BackColor="White" BorderColor="#3366CC"
+                BorderWidth="1px" CellPadding="1" DayNameFormat="Shortest" Font-Names="Verdana"
+                Font-Size="8pt" ForeColor="#003399" Height="200px" Width="220px"
+                OnSelectionChanged="Calendar1_SelectionChanged">
+                <DayHeaderStyle BackColor="#99CCCC" ForeColor="#336666" Height="1px" />
+                <NextPrevStyle Font-Size="8pt" ForeColor="#CCCCFF" />
+                <OtherMonthDayStyle ForeColor="#999999" />
+                <SelectedDayStyle BackColor="#009999" Font-Bold="True" ForeColor="#CCFF99" />
+                <SelectorStyle BackColor="#99CCCC" ForeColor="#336666" />
+                <TitleStyle BackColor="#003399" BorderColor="#3366CC" BorderWidth="1px"
+                    Font-Bold="True" Font-Size="10pt" ForeColor="#CCCCFF" Height="25px" />
+                <TodayDayStyle BackColor="#99CCCC" ForeColor="White" />
+                <WeekendDayStyle BackColor="#CCCCFF" />
+            </asp:Calendar>
+            <br />
+	   <asp:Label ID="lblSelectedDate" runat="server" Text="Select Date"></asp:Label>
+            <br />
+            <asp:Button ID="BtnApplyLeave" runat="server" Text="Apply Leave" OnClick="BtnApplyLeave_Click" />
+        </div>
+    </form>
+</body>
+</html>
+
+calendar.aspx.cs:-
+
+using System;
+using System.Web.UI;
+
+namespace prac_5
+{
+    public partial class calendar : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+        }
+
+        protected void Calendar1_SelectionChanged(object sender, EventArgs e)
+        {
+            // Select Date
+            DateTime sldt = Calendar1.SelectedDate;
+            lblSelectedDate.Text = "Selected Date: " + sldt.ToString("dd-MM-yy");
+
+            // Store selected date in session
+            Session["LeaveDate"] = sldt;
+        }
+
+        protected void BtnApplyLeave_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("LeaveApply.aspx");
+        }
+    }
+}
+
+LeaveApply.aspx:-
+
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="LeaveApply.aspx.cs"
+Inherits="prac_5.LeaveApply" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Leave Application</title>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+            <h3>LEAVE APPLICATION</h3>
+
+            Employee Name
+            <asp:TextBox ID="txtemp" runat="server"></asp:TextBox>
+            <br /><br />
+
+            Leave Date
+            <asp:TextBox ID="lblButtonDT" runat="server"></asp:TextBox>
+            <br /><br />
+
+            Leave Type
+            <asp:DropDownList ID="DropDownList1" runat="server">
+                <asp:ListItem>Select Leave Type</asp:ListItem>
+                <asp:ListItem>Personal Leave</asp:ListItem>
+                <asp:ListItem>Medical Leave</asp:ListItem>
+                <asp:ListItem>Emergency Leave</asp:ListItem>
+            </asp:DropDownList>
+            <br /><br />
+
+            Reason
+            <asp:TextBox ID="TextBox2" runat="server" TextMode="MultiLine" Rows="4" Columns="20"></asp:TextBox>
+            <br /><br />
+
+            Remember name
+            <asp:CheckBox ID="CheckBox1" runat="server" Text="Remember my name..." />
+            <br /><br />
+
+            <asp:Button ID="btnSubmit" runat="server" Text="Submit Leave" OnClick="btnSubmit_Click" />
+            <br /><br />
+
+            <asp:Label ID="lblmsg" runat="server"></asp:Label>
+        </div>
+    </form>
+</body>
+</html>
+
+LeaveApply.aspx.cs:-
+
+using System;
+using System.Web;
+using System.Web.UI;
+
+namespace prac_5
+{
+    public partial class LeaveApply : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (!IsPostBack)
+            {
+                // Check whether Employee cookie exists
+                if (Request.Cookies["Employee"] != null)
+                {
+                    txtemp.Text = Request.Cookies["Employee"].Value;
+                }
+
+                // Display current date
+                lblButtonDT.Text = DateTime.Now.ToString("dd-MM-yy");
+            }
+        }
+
+        protected void btnSubmit_Click(object sender, EventArgs e)
+        {
+            string ename = txtemp.Text;
+            string leavetp = DropDownList1.SelectedValue;
+            string reason = TextBox2.Text;
+            string leavedate = lblButtonDT.Text;
+
+            // Store employee name in cookie if checkbox is checked
+            if (CheckBox1.Checked)
+            {
+                HttpCookie empCookie = new HttpCookie("Employee");
+                empCookie.Value = ename;
+                empCookie.Expires = DateTime.Now.AddDays(7);
+                Response.Cookies.Add(empCookie);
+            }
+
+            // Store details in Session
+            Session["Employee"] = ename;
+            Session["LeaveType"] = leavetp;
+            Session["LeaveDate"] = leavedate;
+            Session["Reason"] = reason;
+
+            // Display leave application details
+            if (leavetp == "Select Leave Type")
+            {
+                lblmsg.Text = "Please select a Leave Type.";
+            }
+            else
+            {
+                lblmsg.Text =
+                    "<b>Leave Application Submitted Successfully</b><br/><br/>" +
+                    "Employee Name: " + ename + "<br/>" +
+                    "Leave Date: " + leavedate + "<br/>" +
+                    "Leave Type: " + leavetp + "<br/>" +
+                    "Reason: " + reason;
+            }
+        }
+    }
+}
