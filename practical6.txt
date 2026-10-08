@@ -1,0 +1,162 @@
+ProductControler.cs:--
+
+using WebApplication13.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+namespace WebApplication13.Controllers
+{
+public class ProductController : Controller
+{
+// GET: Product
+public ActionResult Index()
+{
+List<Product> P = new List<Product>();
+P = GetProducts();
+return View(P);
+}
+public ActionResult Details(int id)
+{
+List<Product> PALL = GetProducts();
+Product P1 = PALL.FirstOrDefault(p => p.ProductId == id);
+return View(P1);
+}
+private List<Product> GetProducts()
+{
+return new List<Product>
+{
+new Product
+{
+ProductId = 1,
+ProductName = "Laptop",
+Description = "Dell Laptop",
+Price = 55000,
+Category = "Electronics"
+},
+new Product
+{
+ProductId = 2,
+ProductName = "Mobile",
+Description = "Samsung Mobile",
+Price = 25000,
+Category = "Electronics"
+},
+new Product
+{
+ProductId = 3,
+ProductName = "Headphones",
+Description = "Wireless Headphones",
+Price = 3000,
+Category = "Accessories"
+}
+};
+}
+}
+}
+
+Proudct.cs:--
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+namespace WebApplication13.Models
+{
+public class Product
+{
+public int ProductId { get; set; }
+public string ProductName { get; set; }
+public string Description { get; set; }
+public double Price { get; set; }
+public string Category { get; set; }
+}
+}
+Source: Details.cshtml
+Code:
+@model WebApplication13.Models.Product
+@{
+ViewBag.Title = "Details";
+}
+@{
+Layout = null;
+}
+<h2>Product Details</h2>
+@if (Model != null)
+{
+<p>Product Id: @Model.ProductId</p>
+<p>Product Name: @Model.ProductName</p>
+<p>Description: @Model.Description</p>
+<p>Price: @Model.Price</p>
+
+<p>Category: @Model.Category</p>
+}
+else
+{
+<p>Product not found.</p>
+}
+<br />
+@Html.ActionLink("Back to Product Catalog", "Index", "Product")
+
+Index.cshtml:--
+
+@model List<WebApplication13.Models.Product>
+@{
+ViewBag.Title = "Index";
+}
+@{
+Layout = null;
+}
+<h4>Rutvi Sadariya-92510120054</h4>
+<h2>Product Catelog</h2>
+<table border="1">
+<tr>
+<th>Product Id</th>
+<th>Product Name</th>
+<th>Description</th>
+<th>Price</th>
+<th>Category</th>
+<th>Action</th>
+</tr>
+@foreach (var product in Model)
+{
+<tr>
+<td>@product.ProductId</td>
+<td>@product.ProductName</td>
+<td>@product.Description</td>
+<td>@product.Price</td>
+<td>@product.Category</td>
+<td>
+@Html.ActionLink("View Details","Details","Product",
+new { id = product.ProductId },null)
+</td>
+</tr>
+}
+</table>
+
+RoutingConfig.cs:--
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+using System.Web.Routing;
+namespace WebApplication13
+{
+public class RouteConfig
+{
+public static void RegisterRoutes(RouteCollection routes)
+{
+routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+routes.MapRoute(
+name: "Default",
+url: "{controller}/{action}/{id}",
+defaults: new { controller = "Product", action = "Index", id =
+UrlParameter.Optional }
+);
+}
+}
+}
